@@ -5,10 +5,11 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign no-define subdir-objects])
 
 : ${CFLAGS="-Wall -Wextra -Wpedantic"}
 
-CFLAGS="$CFLAGS -I$(pwd)/lib/{libdynamic,libreactor_core,libreactor_net}/src"
-LDFLAGS="$LDFLAGS -L$(pwd)/lib/{libdynamic,libreactor_core,libreactor_net}"
-
+CFLAGS="$CFLAGS -march=native -I$(pwd)/lib/{libdynamic,libreactor_core,libreactor_net}/src"
+LDFLAGS="$LDFLAGS -march=native -L$(pwd)/lib/{libdynamic,libreactor_core,libreactor_net}/.libs"
 export CFLAGS LDFLAGS
+
+AC_PROG_CC
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([lib/libdynamic lib/libreactor_core lib/libreactor_net])
