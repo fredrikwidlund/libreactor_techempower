@@ -1,13 +1,24 @@
 # libreactor_techempower
 
-Machine 1 (wrk) <-(4x10GbE)-> Machine 2(16xrest_server)
+Machine 1/2 (wrk) <- (4x10GbE) -> Machine 3 (16 x rest_server)
 
-    #  ./wrk -c 512 -d 10s -t 16 -s scripts/pipeline.lua http://10.24.133.32/plaintext
-    Running 10s test @ http://10.24.133.32/plaintext
-      16 threads and 512 connections
+    # ./wrk -c128 -d20s -t16 -s scripts/pipeline.lua http://x.x.x.x/plaintext
+    Running 20s test @ http://x.x.x.x/plaintext
+      16 threads and 128 connections
       Thread Stats   Avg      Stdev     Max   +/- Stdev
-        Latency     2.75ms    3.38ms  55.30ms   80.85%
-        Req/Sec     1.15M    84.80k    2.04M    92.42%
-      183913730 requests in 10.10s, 13.19GB read
-    Requests/sec: 18214226.89
-    Transfer/sec:      1.31GB
+        Latency   698.78us  624.70us  41.26ms   76.68%
+        Req/Sec   772.96k    75.38k    1.40M    86.35%
+      247255474 requests in 20.10s, 22.57GB read
+    Requests/sec: 12302056.29
+    Transfer/sec:      1.12GB
+    # ./wrk -c128 -d20s -t16 -s scripts/pipeline.lua http://x.x.x.x/plaintext
+    Running 20s test @ http://x.x.x.x/plaintext
+      16 threads and 128 connections
+      Thread Stats   Avg      Stdev     Max   +/- Stdev
+        Latency   704.36us  564.73us  41.38ms   73.21%
+    Req/Sec   758.38k    65.83k    1.17M    68.10%
+      242452772 requests in 20.09s, 22.13GB read
+    Requests/sec: 12066253.00
+    Transfer/sec:      1.10GB
+
+Total: 24+ Mrps
