@@ -20,13 +20,15 @@
 void rest_event(void *state, int type, void *data)
 {
   reactor_rest_server_request *request = data;
+  char size[16];
+  int n;
 
   (void) state;
   if (type == REACTOR_REST_SERVER_ERROR)
     warn("error event");
 
   if (type == REACTOR_REST_SERVER_REQUEST)
-    reactor_rest_server_return_text(request, request->state);
+    reactor_rest_server_respond_text(request, "Hello, World!");
 }
 
 int main()
