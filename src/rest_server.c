@@ -9,6 +9,7 @@
 #include <cmocka.h>
 #include <errno.h>
 #include <string.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <err.h>
@@ -29,7 +30,7 @@ void plaintext(reactor_rest_server_request *request, void *message)
   reactor_rest_server_respond_text(request, message);
 }
 
-void rest_event(void *state, int type, void *data)
+void event(void *state, int type, void *data)
 {
   reactor_rest_server_request *request = data;
   map *map = request->state;
@@ -41,16 +42,29 @@ void rest_event(void *state, int type, void *data)
     map->handler(request, map->state);
 }
 
-int main()
+void *server(void *arg)
 {
   reactor_rest_server rest;
   char message[] = "Hello, World!";
 
+  (void) arg;
   reactor_core_construct();
-
-  reactor_rest_server_init(&rest, rest_event, &rest);
+  reactor_rest_server_init(&rest, event, &rest);
   reactor_rest_server_open(&rest, NULL, NULL);
   reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]){{.handler = plaintext, .state = message}});
   reactor_core_run();
   reactor_core_destruct();
+
+  return NULL;
+}
+
+int main()
+{
+  long i, n = sysconf(_SC_NPROCESSORS_ONLN);
+  pthread_t tid[n];
+
+  for (i = 0; i < n; i ++)
+    pthread_create(&tid[i], NULL, server, NULL);
+  for (i = 0; i < n; i ++)
+    pthread_join(tid[i], NULL);
 }
