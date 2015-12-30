@@ -131,14 +131,14 @@ int reactor_stream_puts(reactor_stream *stream, char *string)
 
 int reactor_stream_putu(reactor_stream *stream, uint32_t n)
 {
-  int e;
-  uint32_t pow10[] = {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
-  char digits[200] =
+  static const uint32_t pow10[] = {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+  static const char digits[200] =
     "0001020304050607080910111213141516171819202122232425262728293031323334353637383940414243444546474849"
     "5051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899";
   uint32_t t, size, x;
   buffer *b;
   char *base;
+  int e;
 
   t = (32 - __builtin_clz(n | 1)) * 1233 >> 12;
   size = t - (n < pow10[t]) + 1;
