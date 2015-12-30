@@ -1,5 +1,8 @@
+#define _GNU_SOURCE
+
 #include <stdint.h>
 #include <string.h>
+#include <netdb.h>
 #include <sys/socket.h>
 
 #include <dynamic.h>
@@ -82,7 +85,7 @@ void reactor_rest_server_return_not_found(reactor_rest_server_request *request)
   reactor_rest_server_return(request, 404, "Not Found", "application/json", not_found_body, strlen(not_found_body));
 }
 
-void reactor_rest_server_return_text(reactor_rest_server_request *request, char *body)
+void reactor_rest_server_respond_text(reactor_rest_server_request *request, char *body)
 {
-  reactor_rest_server_return(request, 200, "OK", "text/html", body, strlen(body));
+  reactor_http_server_respond(request->session, "200", "OK", "text/html", body, strlen(body));
 }
