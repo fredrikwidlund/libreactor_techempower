@@ -6,7 +6,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <setjmp.h>
-#include <cmocka.h>
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
@@ -50,7 +49,7 @@ void *server(void *arg)
   (void) arg;
   reactor_core_construct();
   reactor_rest_server_init(&rest, event, &rest);
-  reactor_rest_server_open(&rest, NULL, NULL);
+  reactor_rest_server_open(&rest, NULL, "http-alt");
   reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]){{.handler = plaintext, .state = message}});
   reactor_core_run();
   reactor_core_destruct();
