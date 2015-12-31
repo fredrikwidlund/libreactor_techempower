@@ -87,5 +87,5 @@ void reactor_rest_server_return_not_found(reactor_rest_server_request *request)
 
 void reactor_rest_server_respond_text(reactor_rest_server_request *request, char *body)
 {
-  reactor_http_server_respond(request->session, "200", "OK", "text/html", body, strlen(body));
+  reactor_http_server_respond(request->session, "200", "OK", "text/plain", body, strlen(body));
 }

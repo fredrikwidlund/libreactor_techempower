@@ -19,7 +19,6 @@ struct reactor_http_server
   reactor_user                    user;
   reactor_tcp_server              tcp_server;
   reactor_timer                   date_update;
-  char                            header[128];
   char                            date[32];
 };
 

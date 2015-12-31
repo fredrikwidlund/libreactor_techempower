@@ -93,7 +93,7 @@ void reactor_http_server_respond(reactor_http_server_session *session, char *cod
   reactor_stream_puts(stream, code);
   reactor_stream_puts(stream, " ");
   reactor_stream_puts(stream, message);
-  reactor_stream_puts(stream, "\r\nServer: X\r\nDate: ");
+  reactor_stream_puts(stream, "\r\nServer: libreactor\r\nDate: ");
   reactor_stream_puts(stream, session->server->date);
   reactor_stream_puts(stream, "\r\nContent-type: ");
   reactor_stream_puts(stream, type);
@@ -122,10 +122,6 @@ void reactor_http_server_date_update(reactor_http_server *http_server)
   (void) strftime(http_server->date, sizeof http_server->date, "---, %d --- %Y %H:%M:%S GMT", &tm);
   memcpy(http_server->date, days[tm.tm_wday], 3);
   memcpy(http_server->date + 8, months[tm.tm_mon], 3);
-  (void) snprintf(http_server->header, sizeof http_server->header,
-		  "HTTP/1.1 200 OK\r\n"
-		  "Server: X\r\n"
-		  "Date: %s\r\n", http_server->date);
 }
 
 void reactor_http_server_session_event(void *state, int type, void *data)
