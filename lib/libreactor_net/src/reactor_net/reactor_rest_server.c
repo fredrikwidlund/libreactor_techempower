@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 
 #include <dynamic.h>
+#include <clo.h>
 #include <reactor_core.h>
 
 #include "reactor_tcp_server.h"
@@ -88,4 +89,17 @@ void reactor_rest_server_return_not_found(reactor_rest_server_request *request)
 void reactor_rest_server_respond_text(reactor_rest_server_request *request, char *body)
 {
   reactor_http_server_respond(request->session, "200", "OK", "text/plain", body, strlen(body));
+}
+
+void reactor_rest_server_respond_clo(reactor_rest_server_request *request, clo *clo)
+{
+  buffer b;
+  int e;
+
+  buffer_init(&b);
+  e = 0;
+  clo_encode(clo, &b, &e);
+  if (e == 0)
+    reactor_http_server_respond(request->session, "200", "OK", "application/json", buffer_data(&b), buffer_size(&b));
+  buffer_clear(&b);
 }

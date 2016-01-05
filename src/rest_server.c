@@ -14,6 +14,7 @@
 #include <err.h>
 
 #include <dynamic.h>
+#include <clo.h>
 #include <reactor_core.h>
 #include <reactor_net.h>
 
@@ -23,6 +24,11 @@ struct map
   void (*handler)(reactor_rest_server_request *, void *);
   void  *state;
 };
+
+void json(reactor_rest_server_request *request, void *message)
+{
+  reactor_rest_server_respond_clo(request, (clo[]){clo_object({"message", clo_string(message)})});
+}
 
 void plaintext(reactor_rest_server_request *request, void *message)
 {
@@ -51,6 +57,7 @@ void *server(void *arg)
   reactor_rest_server_init(&rest, event, &rest);
   reactor_rest_server_open(&rest, NULL, "8080");
   reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]){{.handler = plaintext, .state = message}});
+  reactor_rest_server_add(&rest, "GET", "/json", (map[]){{.handler = json, .state = message}});
   reactor_core_run();
   reactor_core_destruct();
 

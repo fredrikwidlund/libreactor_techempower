@@ -39,5 +39,6 @@ int  reactor_rest_server_match(reactor_rest_server_map *, reactor_http_server_re
 void reactor_rest_server_return(reactor_rest_server_request *, int, char *, char *, char *, size_t);
 void reactor_rest_server_return_not_found(reactor_rest_server_request *);
 void reactor_rest_server_respond_text(reactor_rest_server_request *, char *);
+void reactor_rest_server_respond_clo(reactor_rest_server_request *, clo *);
 
 #endif /* REACTOR_REST_SERVER_H_INCLUDED */
