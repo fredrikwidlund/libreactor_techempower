@@ -64,6 +64,7 @@ void reactor_http_server_event(void *state, int type, void *data)
           break;
         }
       reactor_user_dispatch(&http_server->user, REACTOR_HTTP_SERVER_ACCEPT, session);
+      reactor_stream_read(&session->stream);
       break;
     case REACTOR_TCP_SERVER_CLOSE:
       reactor_user_dispatch(&http_server->user, REACTOR_HTTP_SERVER_CLOSE, NULL);
@@ -86,7 +87,7 @@ void reactor_http_server_close(reactor_http_server *http_server)
 }
 
 void reactor_http_server_respond(reactor_http_server_session *session, char *code, char *message, char *type,
-				 char *body, size_t size)
+                                 char *body, size_t size)
 {
   reactor_stream *stream = &session->stream;
   reactor_stream_puts(stream, "HTTP/1.1 ");
