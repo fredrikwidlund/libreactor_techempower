@@ -10,6 +10,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <sys/socket.h>
+#include <sys/resource.h>
 #include <netdb.h>
 #include <err.h>
 
@@ -17,6 +18,12 @@
 #include <clo.h>
 #include <reactor_core.h>
 #include <reactor_net.h>
+
+struct thread_info
+{
+  pthread_t tid;
+  int       cpu;
+};
 
 typedef struct map map;
 struct map
@@ -47,12 +54,44 @@ void event(void *state, int type, void *data)
     map->handler(request, map->state);
 }
 
+/* don't use this in production environments */
+int insane_optimizations(struct thread_info *tinfo)
+{
+  struct sched_param param;
+  struct rlimit rlim;
+  cpu_set_t cpuset;
+  int e;
+
+  e = sched_getparam(0, &param);
+  if (e == -1)
+    return -1;
+
+  param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+  rlim = (struct rlimit) {.rlim_cur = param.sched_priority, .rlim_max = param.sched_priority};
+  e = prlimit(0, RLIMIT_RTPRIO, &rlim, NULL);
+  if (e == -1)
+    return -1;
+
+  e = sched_setscheduler(0, SCHED_FIFO, &param);
+  if (e == -1)
+    return -1;
+
+  CPU_ZERO(&cpuset);
+  CPU_SET(tinfo->cpu, &cpuset);
+  e = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+  if (e != 0)
+    return -1;
+
+  return 0;
+}
+
 void *server(void *arg)
 {
   reactor_rest_server rest;
   char message[] = "Hello, World!";
 
-  (void) arg;
+  (void) insane_optimizations(arg);
+
   reactor_core_construct();
   reactor_rest_server_init(&rest, event, &rest);
   reactor_rest_server_open(&rest, NULL, "8080");
@@ -67,10 +106,13 @@ void *server(void *arg)
 int main()
 {
   long i, n = sysconf(_SC_NPROCESSORS_ONLN);
-  pthread_t tid[n];
+  struct thread_info tinfo[n];
 
   for (i = 0; i < n; i ++)
-    pthread_create(&tid[i], NULL, server, NULL);
+    {
+      tinfo[i].cpu = i;
+      pthread_create(&tinfo[i].tid, NULL, server, &tinfo[i]);
+    }
   for (i = 0; i < n; i ++)
-    pthread_join(tid[i], NULL);
+    pthread_join(tinfo[i].tid, NULL);
 }
