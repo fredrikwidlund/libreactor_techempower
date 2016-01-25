@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <sys/resource.h>
+#include <linux/sched.h>
 #include <netdb.h>
 #include <err.h>
 
@@ -34,7 +35,7 @@ struct map
 
 void json(reactor_rest_server_request *request, void *message)
 {
-  reactor_rest_server_respond_clo(request, (clo[]){clo_object({"message", clo_string(message)})});
+  reactor_rest_server_respond_clo(request, 200, (clo[]) {clo_object({"message", clo_string(message)})});
 }
 
 void plaintext(reactor_rest_server_request *request, void *message)
@@ -54,7 +55,7 @@ void event(void *state, int type, void *data)
     map->handler(request, map->state);
 }
 
-/* don't use this in production environments */
+/* don't use in real production environments */
 int insane_optimizations(struct thread_info *tinfo)
 {
   struct sched_param param;
@@ -88,15 +89,15 @@ int insane_optimizations(struct thread_info *tinfo)
 void *server(void *arg)
 {
   reactor_rest_server rest;
-  char message[] = "Hello, World!";
+  const char message[] = "Hello, World!";
 
   (void) insane_optimizations(arg);
 
   reactor_core_construct();
   reactor_rest_server_init(&rest, event, &rest);
-  reactor_rest_server_open(&rest, NULL, "8080");
-  reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]){{.handler = plaintext, .state = message}});
-  reactor_rest_server_add(&rest, "GET", "/json", (map[]){{.handler = json, .state = message}});
+  reactor_rest_server_open(&rest, NULL, "8080", (reactor_rest_server_options[]) {{.http_server_options.name = "*"}});
+  reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]) {{.handler = plaintext, .state = (void *) message}});
+  reactor_rest_server_add(&rest, "GET", "/json", (map[]) {{.handler = json, .state = (void *) message}});
   reactor_core_run();
   reactor_core_destruct();
 
