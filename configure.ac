@@ -10,6 +10,7 @@ LDFLAGS="$LDFLAGS -march=native -L$(pwd)/lib/{libdynamic,libclo,libreactor_core,
 export CFLAGS LDFLAGS
 
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([lib/libdynamic lib/libclo lib/libreactor_core lib/libreactor_net])
