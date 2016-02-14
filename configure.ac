@@ -5,8 +5,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign no-define subdir-objects])
 
 : ${CFLAGS="-Wall -Wextra -Wpedantic"}
 
-CFLAGS="$CFLAGS -march=native -I$(pwd)/lib/{libdynamic,libclo,libreactor_core,libreactor_net}/src"
-LDFLAGS="$LDFLAGS -march=native -L$(pwd)/lib/{libdynamic,libclo,libreactor_core,libreactor_net}/.libs"
+CFLAGS="$CFLAGS -march=native -mtune=native -fomit-frame-pointer -I$(pwd)/lib/{libdynamic,libclo,libreactor_core,libreactor_net}/src"
+LDFLAGS="$LDFLAGS -march=native -mtune=native -fomit-frame-pointer -L$(pwd)/lib/{libdynamic,libclo,libreactor_core,libreactor_net}/.libs"
 export CFLAGS LDFLAGS
 
 AC_PROG_CC
