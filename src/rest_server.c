@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <signal.h>
 #include <unistd.h>
 #include <setjmp.h>
 #include <errno.h>
@@ -108,6 +109,8 @@ int main()
 {
   long i, n = sysconf(_SC_NPROCESSORS_ONLN);
   struct thread_info tinfo[n];
+
+  signal(SIGPIPE, SIG_IGN);
 
   for (i = 0; i < n; i ++)
     {
