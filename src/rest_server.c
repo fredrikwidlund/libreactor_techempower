@@ -57,11 +57,10 @@ void event(void *state, int type, void *data)
 }
 
 /* don't use in real production environments */
-int insane_optimizations(struct thread_info *tinfo)
+int insane_optimizations(void)
 {
   struct sched_param param;
   struct rlimit rlim;
-  cpu_set_t cpuset;
   int e;
 
   e = sched_getparam(0, &param);
@@ -78,12 +77,6 @@ int insane_optimizations(struct thread_info *tinfo)
   if (e == -1)
     return -1;
 
-  CPU_ZERO(&cpuset);
-  CPU_SET(tinfo->cpu, &cpuset);
-  e = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
-  if (e != 0)
-    return -1;
-
   return 0;
 }
 
@@ -92,7 +85,8 @@ void *server(void *arg)
   reactor_rest_server rest;
   const char message[] = "Hello, World!";
 
-  (void) insane_optimizations(arg);
+  (void) arg;
+  (void) insane_optimizations();
 
   reactor_core_construct();
   reactor_rest_server_init(&rest, event, &rest);
@@ -112,6 +106,8 @@ int main()
 
   signal(SIGPIPE, SIG_IGN);
 
+  if (n > 16)
+    n  = 16;
   for (i = 0; i < n; i ++)
     {
       tinfo[i].cpu = i;
