@@ -56,12 +56,12 @@ static void json(void *state, reactor_rest_request *request)
   char buffer[4096];
   int e;
 
-  clo_encode(clo, buffer, sizeof(buffer));
+  (void) state;
+  e = clo_encode((clo[]) {clo_object({"message", clo_string("Hello, World!")})}, buffer, sizeof(buffer));
   if (e == 0)
     reactor_rest_respond_body(request, 200, "OK", "application/json", buffer, strlen(buffer));
   else
     reactor_rest_respond_empty(request, 500, "Internal Server Error");
-  buffer_clear(&b);
 }
 
 void server(void)
