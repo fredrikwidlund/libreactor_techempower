@@ -53,8 +53,15 @@ static void plaintext(void *state, reactor_rest_request *request)
 
 static void json(void *state, reactor_rest_request *request)
 {
-  (void) state;
-  reactor_rest_respond_text(request, "todo");
+  char buffer[4096];
+  int e;
+
+  clo_encode(clo, buffer, sizeof(buffer));
+  if (e == 0)
+    reactor_rest_respond_body(request, 200, "OK", "application/json", buffer, strlen(buffer));
+  else
+    reactor_rest_respond_empty(request, 500, "Internal Server Error");
+  buffer_clear(&b);
 }
 
 void server(void)
