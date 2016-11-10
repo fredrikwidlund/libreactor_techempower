@@ -72,6 +72,7 @@ void server(void)
   (void) realtime_scheduler();
   reactor_core_open();
   reactor_rest_init(&rest, NULL, NULL);
+  reactor_rest_name(&rest, "*");
   reactor_rest_open(&rest, "localhost", "8080", 0);
   reactor_rest_add_match(&rest, "GET", "/plaintext", plaintext, NULL);
   reactor_rest_add_match(&rest, "GET", "/json", json, NULL);
