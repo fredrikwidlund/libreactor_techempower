@@ -12,52 +12,17 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <sys/resource.h>
+#include <sys/param.h>
+#include <sys/wait.h>
 #include <linux/sched.h>
 #include <netdb.h>
 #include <err.h>
 
 #include <dynamic.h>
 #include <clo.h>
-#include <reactor_core.h>
-#include <reactor_net.h>
+#include <reactor.h>
 
-struct thread_info
-{
-  pthread_t tid;
-  int       cpu;
-};
-
-typedef struct map map;
-struct map
-{
-  void (*handler)(reactor_rest_server_request *, void *);
-  void  *state;
-};
-
-void json(reactor_rest_server_request *request, void *message)
-{
-  reactor_rest_server_respond_clo(request, 200, (clo[]) {clo_object({"message", clo_string(message)})});
-}
-
-void plaintext(reactor_rest_server_request *request, void *message)
-{
-  reactor_rest_server_respond_text(request, message);
-}
-
-void event(void *state, int type, void *data)
-{
-  reactor_rest_server_request *request = data;
-  map *map = request->state;
-
-  (void) state;
-  if (type == REACTOR_REST_SERVER_ERROR)
-    warn("error event");
-  else if (type == REACTOR_REST_SERVER_REQUEST)
-    map->handler(request, map->state);
-}
-
-/* don't use in real production environments */
-int insane_optimizations(void)
+static int realtime_scheduler(void)
 {
   struct sched_param param;
   struct rlimit rlim;
@@ -80,39 +45,53 @@ int insane_optimizations(void)
   return 0;
 }
 
-void *server(void *arg)
+static void plaintext(void *state, reactor_rest_request *request)
 {
-  reactor_rest_server rest;
-  const char message[] = "Hello, World!";
+  (void) state;
+  reactor_rest_respond_text(request, "Hello, World!");
+}
 
-  (void) arg;
-  (void) insane_optimizations();
+static void json(void *state, reactor_rest_request *request)
+{
+  (void) state;
+  reactor_rest_respond_text(request, "todo");
+}
 
-  reactor_core_construct();
-  reactor_rest_server_init(&rest, event, &rest);
-  reactor_rest_server_open(&rest, NULL, "8080", (reactor_rest_server_options[]) {{.http_server_options.name = "*"}});
-  reactor_rest_server_add(&rest, "GET", "/plaintext", (map[]) {{.handler = plaintext, .state = (void *) message}});
-  reactor_rest_server_add(&rest, "GET", "/json", (map[]) {{.handler = json, .state = (void *) message}});
-  reactor_core_run();
-  reactor_core_destruct();
+void server(void)
+{
+  reactor_rest rest;
+  int e;
 
-  return NULL;
+  (void) realtime_scheduler();
+  reactor_core_open();
+  reactor_rest_init(&rest, NULL, NULL);
+  reactor_rest_open(&rest, "localhost", "8080", 0);
+  reactor_rest_add_match(&rest, "GET", "/plaintext", plaintext, NULL);
+  reactor_rest_add_match(&rest, "GET", "/json", json, NULL);
+  e = reactor_core_run();
+  if (e == -1)
+    err(1, "reactor_core_run");
+  reactor_core_close();
 }
 
 int main()
 {
-  long i, n = sysconf(_SC_NPROCESSORS_ONLN);
-  struct thread_info tinfo[n];
+  long i, n;
+  pid_t cpid;
 
+  (void) realtime_scheduler();
   signal(SIGPIPE, SIG_IGN);
-
-  if (n > 16)
-    n  = 16;
+  n = MAX(1, sysconf(_SC_NPROCESSORS_ONLN) / 2);
   for (i = 0; i < n; i ++)
     {
-      tinfo[i].cpu = i;
-      pthread_create(&tinfo[i].tid, NULL, server, &tinfo[i]);
+      cpid = fork();
+      if (cpid == -1)
+        err(1, "fork");
+      if (cpid == 0)
+        {
+          server();
+          exit(0);
+        }
     }
-  for (i = 0; i < n; i ++)
-    pthread_join(tinfo[i].tid, NULL);
+  wait(NULL);
 }
