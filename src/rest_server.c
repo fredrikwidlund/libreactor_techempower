@@ -73,7 +73,7 @@ void server(void)
   reactor_core_open();
   reactor_rest_init(&rest, NULL, NULL);
   reactor_rest_name(&rest, "*");
-  reactor_rest_open(&rest, "localhost", "8080", 0);
+  reactor_rest_open(&rest, NULL, "8080", 0);
   reactor_rest_add_match(&rest, "GET", "/plaintext", plaintext, NULL);
   reactor_rest_add_match(&rest, "GET", "/json", json, NULL);
   e = reactor_core_run();
