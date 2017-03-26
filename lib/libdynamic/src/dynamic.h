@@ -1,9 +1,9 @@
 #ifndef DYNAMIC_H_INCLUDED
 #define DYNAMIC_H_INCLUDED
 
-#define DYNAMIC_VERSION "0.5.0"
-#define DYNAMIC_VERSION_MAJOR 0
-#define DYNAMIC_VERSION_MINOR 5
+#define DYNAMIC_VERSION "1.0.0"
+#define DYNAMIC_VERSION_MAJOR 1
+#define DYNAMIC_VERSION_MINOR 0
 #define DYNAMIC_VERSION_PATCH 0
 
 #ifdef __cplusplus
@@ -13,9 +13,8 @@ extern "C" {
 #include <dynamic/buffer.h>
 #include <dynamic/vector.h>
 #include <dynamic/string.h>
-#include <dynamic/cfarmhash.h>
-#include <dynamic/mapi.h>
-#include <dynamic/maps.h>
+#include <dynamic/hash.h>
+#include <dynamic/map.h>
 
 #ifdef __cplusplus
 }
