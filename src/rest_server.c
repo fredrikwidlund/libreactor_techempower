@@ -38,7 +38,7 @@ int main()
 {
   reactor_http_server server;
 
-  setup(2, 0);
+  setup(1, 0);
   reactor_core_construct();
   reactor_http_server_open(&server, NULL, &server, "0.0.0.0", "8080");
   reactor_http_server_route(&server, plaintext, NULL, "GET", "/plaintext");
