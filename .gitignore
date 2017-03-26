@@ -21,3 +21,9 @@
 *.i*86
 *.x86_64
 *.hex
+
+# Documentation builds
+docs/_build/
+
+# macOS specific
+.DS_Store
