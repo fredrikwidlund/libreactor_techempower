@@ -42,7 +42,7 @@ static void json(void *state, int type, void *data)
   (void) state;
   (void) type;
   (void) clo_encode((clo[]) {clo_object({"message", clo_string("Hello, World!")})}, buffer, sizeof(buffer));
-  reactor_http_server_respond_mime(context->session, "application/json", buffer, strlen(buffer));
+  reactor_http_server_respond_mime(context->session, "application/json", buffer, strlen(buffer));;
 }
 
 int main()
